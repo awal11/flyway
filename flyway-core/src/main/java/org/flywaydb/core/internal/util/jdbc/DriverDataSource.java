@@ -359,6 +359,10 @@ public class DriverDataSource implements DataSource {
             return "com.informix.jdbc.IfxDriver";
         }
 
+        if (url.startsWith("jdbc:teradata:")) {
+            return "com.teradata.jdbc.TeraDriver";
+        }
+
         return null;
     }
 
