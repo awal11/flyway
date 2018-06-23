@@ -19,8 +19,9 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -30,13 +31,13 @@ import java.sql.Connection;
  */
 public class TeradataDatabase extends Database<TeradataConnection> {
 
-    public TeradataDatabase(Configuration configuration, Connection connection) {
-        super(configuration, connection);
+    public TeradataDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit) {
+        super(configuration, connection, originalAutoCommit);
     }
 
     @Override
     protected TeradataConnection getConnection(Connection connection) {
-        return new TeradataConnection(configuration, this, connection);
+        return new TeradataConnection(configuration, this, connection, originalAutoCommit);
     }
 
     @Override
@@ -48,7 +49,7 @@ public class TeradataDatabase extends Database<TeradataConnection> {
 
     @Override
     protected SqlScript doCreateSqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed) {
-        return new TeradataSqlScript(resource, placeholderReplacer, mixed);
+        return new TeradataSqlScript(configuration, resource, mixed, placeholderReplacer);
     }
 
     @Override

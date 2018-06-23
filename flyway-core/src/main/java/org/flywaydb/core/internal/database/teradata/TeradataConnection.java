@@ -26,8 +26,9 @@ import java.sql.Types;
  * Oracle connection.
  */
 public class TeradataConnection extends Connection<TeradataDatabase> {
-    TeradataConnection(Configuration configuration, TeradataDatabase database, java.sql.Connection connection) {
-        super(configuration, database, connection, Types.VARCHAR);
+    TeradataConnection(Configuration configuration, TeradataDatabase database, java.sql.Connection connection,
+                       boolean originalAutoCommit) {
+        super(configuration, database, connection,originalAutoCommit, Types.VARCHAR);
     }
 
     @Override
