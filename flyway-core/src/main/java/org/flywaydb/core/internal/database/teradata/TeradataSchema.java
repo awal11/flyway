@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.teradata;
+package org.flywaydb.core.internal.database.teradata;
 
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.Map;
 /**
  * Teradata implementation of Schema.
  */
-public class TeradataSchema extends Schema<TeradataDbSupport> {
+public class TeradataSchema extends Schema<TeradataDatabase> {
     private static final Log LOG = LogFactory.getLog(TeradataSchema.class);
 
     /**
@@ -39,7 +40,7 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public TeradataSchema(JdbcTemplate jdbcTemplate, TeradataDbSupport dbSupport, String name) {
+    public TeradataSchema(JdbcTemplate jdbcTemplate, TeradataDatabase dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -77,7 +78,7 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
      */
     @Override
     protected void doClean() throws SQLException {
-        if (!dbSupport.supportsDdlTransactions()) {
+        if (!database.supportsDdlTransactions()) {
             jdbcTemplate.getConnection().setAutoCommit(true);
         }
 
@@ -89,7 +90,7 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        jdbcTemplate.execute("DELETE DATABASE " + dbSupport.quote(name) + " ALL");
+        jdbcTemplate.execute("DELETE DATABASE " + database.quote(name) + " ALL");
     }
 
     @Override
@@ -97,14 +98,14 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
         List<String> tableNames = jdbcTemplate.queryForStringList("SELECT TRIM(TableName) FROM dbc.Tables WHERE DatabaseName = ? AND TableKind = 'T'", name);
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new TeradataTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            tables[i] = new TeradataTable(jdbcTemplate, database, this, tableNames.get(i));
         }
         return tables;
     }
 
     @Override
     public Table getTable(String tableName) {
-        return new TeradataTable(jdbcTemplate, dbSupport, this, tableName);
+        return new TeradataTable(jdbcTemplate, database, this, tableName);
     }
 
     /**
@@ -117,9 +118,9 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
      */
     private List<String> generateDropStatementsForJoinIndexes() throws SQLException {
         List<String> viewNames = jdbcTemplate.queryForStringList("SELECT TRIM(TableName) FROM dbc.Tables WHERE DatabaseName = ? AND TableKind = 'I'", name);
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String viewName : viewNames) {
-            statements.add("DROP JOIN INDEX " + dbSupport.quote(name, viewName));
+            statements.add("DROP JOIN INDEX " + database.quote(name, viewName));
         }
 
         return statements;
@@ -137,10 +138,10 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
      */
     private List<String> generateDropStatementsForForeignKeys() throws SQLException {
         List<Map<String, String>> rows = jdbcTemplate.queryForList("SELECT DISTINCT ChildDB, ChildTable, IndexName FROM dbc.All_RI_ParentsV WHERE ParentDB = ? AND ChildDB <> ? AND IndexName IS NOT NULL", name, name);
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
 
         for (Map<String, String> row : rows) {
-            statements.add("ALTER TABLE " + dbSupport.quote(row.get("ChildDB"), row.get("ChildTable")) + " DROP CONSTRAINT " + dbSupport.quote(row.get("IndexName")));
+            statements.add("ALTER TABLE " + database.quote(row.get("ChildDB"), row.get("ChildTable")) + " DROP CONSTRAINT " + database.quote(row.get("IndexName")));
         }
 
         return statements;

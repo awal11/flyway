@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.teradata;
+package org.flywaydb.core.internal.database.teradata;
 
-import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 public class TeradataSqlStatementBuilder extends SqlStatementBuilder {
@@ -24,6 +25,15 @@ public class TeradataSqlStatementBuilder extends SqlStatementBuilder {
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
+
+    /**
+     * Creates a new SqlStatementBuilder.
+     *
+     * @param defaultDelimiter The default delimiter for this database.
+     */
+    public TeradataSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
 
     @Override
     protected void applyStateChanges(String line) {

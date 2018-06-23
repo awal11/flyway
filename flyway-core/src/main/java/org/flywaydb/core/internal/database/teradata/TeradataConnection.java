@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.oracle;
+package org.flywaydb.core.internal.database.teradata;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
@@ -25,17 +25,9 @@ import java.sql.Types;
 /**
  * Oracle connection.
  */
-public class OracleConnection extends Connection<OracleDatabase> {
-    OracleConnection(Configuration configuration, OracleDatabase database, java.sql.Connection connection
-
-
-
-    ) {
-        super(configuration, database, connection, Types.VARCHAR
-
-
-
-        );
+public class TeradataConnection extends Connection<TeradataDatabase> {
+    TeradataConnection(Configuration configuration, TeradataDatabase database, java.sql.Connection connection) {
+        super(configuration, database, connection, Types.VARCHAR);
     }
 
     @Override
@@ -50,6 +42,6 @@ public class OracleConnection extends Connection<OracleDatabase> {
 
     @Override
     public Schema getSchema(String name) {
-        return new OracleSchema(jdbcTemplate, database, name);
+        return new TeradataSchema(jdbcTemplate, database, name);
     }
 }

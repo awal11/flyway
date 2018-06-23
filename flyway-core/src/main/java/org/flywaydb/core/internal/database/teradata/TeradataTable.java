@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.teradata;
+package org.flywaydb.core.internal.database.teradata;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.database.Schema;
 
 import java.sql.SQLException;
 
@@ -30,17 +30,17 @@ public class TeradataTable extends Table {
      * Creates a new Teradata table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
+     * @param database    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public TeradataTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
-        super(jdbcTemplate, dbSupport, schema, name);
+    public TeradataTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+        super(jdbcTemplate, database, schema, name);
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name));
+        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name));
     }
 
     @Override

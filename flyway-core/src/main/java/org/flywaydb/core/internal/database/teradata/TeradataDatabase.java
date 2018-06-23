@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,40 @@
  */
 package org.flywaydb.core.internal.database.teradata;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Teradata-specific support.
  */
-public class TeradataDbSupport extends DbSupport {
-    private static final Log LOG = LogFactory.getLog(TeradataDbSupport.class);
+public class TeradataDatabase extends Database<TeradataConnection> {
 
-    /**
-     * Creates a new instance.
-     *
-     * @param connection The connection to use.
-     */
-    public TeradataDbSupport(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public TeradataDatabase(Configuration configuration, Connection connection) {
+        super(configuration, connection);
+    }
+
+    @Override
+    protected TeradataConnection getConnection(Connection connection) {
+        return new TeradataConnection(configuration, this, connection);
+    }
+
+    @Override
+    protected void ensureSupported() {
+        if (majorVersion < 15) {
+            throw new FlywayDbUpgradeRequiredException("Teradata", "" + majorVersion, "15");
+        }
+    }
+
+    @Override
+    protected SqlScript doCreateSqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed) {
+        return new TeradataSqlScript(resource, placeholderReplacer, mixed);
     }
 
     @Override
@@ -48,22 +57,12 @@ public class TeradataDbSupport extends DbSupport {
     }
 
     @Override
-    public String getCurrentUserFunction() {
-        return "user";
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT database");
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        LOG.info("Teradata does not support schema. Default schema NOT changed to " + schema);
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
+        return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
         return false;
     }
 
@@ -78,22 +77,14 @@ public class TeradataDbSupport extends DbSupport {
     }
 
     @Override
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new TeradataSqlStatementBuilder();
-    }
-
-    @Override
     public String doQuote(String identifier) {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new TeradataSchema(jdbcTemplate, this, name);
     }
 
     @Override
     public boolean catalogIsSchema() {
         return false;
     }
+
+
 }
