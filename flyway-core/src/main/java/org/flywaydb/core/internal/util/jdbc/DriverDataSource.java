@@ -53,6 +53,8 @@ public class DriverDataSource implements DataSource {
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
     private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
     private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
+    private static final String TERADATA_JDBC_DRIVER = "com.teradata.jdbc.TeraDriver";
+    private static final String TERADATA_JDBC_URL_PREFIX = "jdbc:teradata:";
 
     /**
      * The name of the application that created the connection. This is useful for databases that allow setting this
@@ -359,8 +361,8 @@ public class DriverDataSource implements DataSource {
             return "com.informix.jdbc.IfxDriver";
         }
 
-        if (url.startsWith("jdbc:teradata:")) {
-            return "com.teradata.jdbc.TeraDriver";
+        if (url.startsWith(TERADATA_JDBC_URL_PREFIX)) {
+            return TERADATA_JDBC_DRIVER;
         }
 
         return null;
