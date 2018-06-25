@@ -41,7 +41,7 @@ public class TeradataConnection extends Connection<TeradataDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) {
         LOG.info("Teradata does not support schema. Default schema NOT changed to " + schema);
     }
 
