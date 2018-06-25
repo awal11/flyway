@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.database.teradata;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -23,9 +25,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Oracle connection.
+ * Teradata connection.
  */
 public class TeradataConnection extends Connection<TeradataDatabase> {
+    private static final Log LOG = LogFactory.getLog(TeradataConnection.class);
+
     TeradataConnection(Configuration configuration, TeradataDatabase database, java.sql.Connection connection,
                        boolean originalAutoCommit) {
         super(configuration, database, connection,originalAutoCommit, Types.VARCHAR);
@@ -33,12 +37,12 @@ public class TeradataConnection extends Connection<TeradataDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
+        return jdbcTemplate.getConnection().getCatalog();
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + database.quote(schema));
+        LOG.info("Teradata does not support schema. Default schema NOT changed to " + schema);
     }
 
     @Override
