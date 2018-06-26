@@ -33,13 +33,6 @@ import java.util.Map;
 public class TeradataSchema extends Schema<TeradataDatabase> {
     private static final Log LOG = LogFactory.getLog(TeradataSchema.class);
 
-    /**
-     * Creates a new SQLite schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
-     * @param name         The name of the schema.
-     */
     public TeradataSchema(JdbcTemplate jdbcTemplate, TeradataDatabase dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
