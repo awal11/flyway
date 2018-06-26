@@ -37,12 +37,12 @@ public class TeradataConnection extends Connection<TeradataDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.getConnection().getCatalog();
+        return jdbcTemplate.queryForString("SELECT database");
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) {
-        LOG.info("Teradata does not support schema. Default schema NOT changed to " + schema);
+        LOG.debug("Teradata does not support schema. Default schema NOT changed to " + schema);
     }
 
     @Override
