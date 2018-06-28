@@ -64,7 +64,7 @@ public class TeradataDatabase extends Database<TeradataConnection> {
 
     @Override
     protected boolean supportsChangingCurrentSchema() {
-        return false;
+        return true;
     }
 
     @Override
