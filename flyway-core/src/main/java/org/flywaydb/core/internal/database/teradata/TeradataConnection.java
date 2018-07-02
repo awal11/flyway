@@ -44,6 +44,7 @@ public class TeradataConnection extends Connection<TeradataDatabase> {
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         LOG.debug("Changing schema to " + schema);
         jdbcTemplate.execute("DATABASE " + database.quote(schema));
+        jdbcTemplate.execute("COMMIT");
     }
 
     @Override
