@@ -22,7 +22,7 @@ CREATE TABLE "${schema}"."${table}" (
     "script" VARCHAR(1000) NOT NULL,
     "checksum" INTEGER,
     "installed_by" VARCHAR(100) NOT NULL,
-    "installed_on" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_DATE,
+    "installed_on" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ,
     "execution_time" INTEGER NOT NULL,
     "success" BYTEINT NOT NULL,
 CONSTRAINT "${table}_pk" PRIMARY KEY ( "installed_rank" ))
