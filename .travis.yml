@@ -1,8 +1,21 @@
 sudo: required
 language: java
 jdk:
-  - oraclejdk9
-  - oraclejdk10
-install: "sh ./mvnw install -e"
+- oraclejdk9
+- oraclejdk10
+install: sh ./mvnw install -e
 before_script: echo OK
 script: echo Done.
+deploy:
+  provider: releases
+  api_key:
+    secure: ExwdY44IQcZwYQkualedZ29LZoU+U7VscjO0QTuDtUpxXCUYO2P9ohkEQVClcBy4ZyuFw3ahE1H5K3+26GAPEhR6liElsneTXEsTmc7bRzPzjSuexbo2hV2Dqv5zUpheUyf1Sdb0WNIqtiPWdWICrPqzhaf1VuEP8Uc1erQ8Pr/9E2Uui4/qeYYvL4cCiGzFHvDho3UWxEZVR5UdclCXx3QeV1UAta0shIoeJzaQzo95sZezBeMigC7LQviYm2N45eYEVIVmpNEmJ9LIQ/BoxhNeN/YEBQO9A2KlWvJsfamEg0ANo2wlFgEu6LY3ya2e73vQTmi9fCRYUoGuyae4PIOhQnqWG5z+wly6JDFfeiwQKdXQ7/snBGKZI0Akepq/y+rdfPIjao2Vc0PXRDOo/4jm8wuQ88q7bmlSj1AqffGtMC3g540QqgCpMVX0VJpn+6GOcZLf2AE6t3E7EHz9qUZb9z9a5Wj7oOElw6GMtYbIkI55FOhL11dBQCNX7HthLUWd84q4h5cekKJOP8MLDbLrcdFLg0br09rsBEuarZZCyQWwh4zDOZl5WMUHVSuETH3f4VXQv2kF00P8W2FbjhSFv0KldjKfTroin/+j/1Or4cD/nvHtKtkEo0c3ZxyFCs3ohfpmZ4VpJdafKiRGKVqx7vHwHmrtdzwriYUOOfk=
+  file_glob: true
+  file:
+    - flyway-commandline/target/flyway*.jar
+    - flyway-core/target/flyway*.jar
+  skip_cleanup: true
+  on:
+    repo: awal11/flyway
+    tags: true
+

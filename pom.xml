@@ -41,6 +41,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+<!--
     <scm>
 
         <url>https://github.com/flyway/flyway</url>
@@ -54,6 +55,7 @@
 
         <tag>HEAD</tag>
     </scm>
+-->
     <developers>
         <developer>
             <id>axel</id>
