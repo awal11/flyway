@@ -123,19 +123,7 @@ public class DbMigrate {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            schemaHistory.create();
-
-            count = configuration.isGroup() ?
-                    // When group is active, start the transaction boundary early to
-                    // ensure that all changes to the schema history table are either committed or rolled back atomically.
-                    schemaHistory.lock(new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            return migrateAll();
-                        }
-                    }) :
-                    // For all regular cases, proceed with the migration as usual.
-                    migrateAll();
+            count = migrateAll();
 
             stopWatch.stop();
 
@@ -151,24 +139,9 @@ public class DbMigrate {
 
     private int migrateAll() {
         int total = 0;
-        while (true) {
             final boolean firstRun = total == 0;
-            int count = configuration.isGroup()
-                    // With group active a lock on the schema history table has already been acquired.
-                    ? migrateGroup(firstRun)
-                    // Otherwise acquire the lock now. The lock will be released at the end of each migration.
-                    : schemaHistory.lock(new Callable<Integer>() {
-                @Override
-                public Integer call() {
-                    return migrateGroup(firstRun);
-                }
-            });
+            int count = migrateGroup(firstRun);
             total += count;
-            if (count == 0) {
-                // No further migrations available
-                break;
-            }
-        }
         return total;
     }
 
@@ -233,11 +206,6 @@ public class DbMigrate {
             boolean isOutOfOrder = pendingMigration.getVersion() != null
                     && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
             group.put(pendingMigration, isOutOfOrder);
-
-            if (!configuration.isGroup()) {
-                // Only include one pending migration if group is disabled
-                break;
-            }
         }
 
         if (!group.isEmpty()) {
@@ -361,11 +329,7 @@ public class DbMigrate {
             LOG.debug("Successfully completed migration of " + migrationText);
             callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE, migration);
 
-            stopWatch.stop();
-            int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-            schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
-                    migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         }
     }
 

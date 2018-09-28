@@ -930,34 +930,9 @@ public class Flyway implements Configuration {
 
 
             ) {
-                if (configuration.isValidateOnMigrate()) {
-                    doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
-                }
 
                 new DbSchemas(database, schemas, schemaHistory).create();
 
-                if (!schemaHistory.exists()) {
-                    List<Schema> nonEmptySchemas = new ArrayList<>();
-                    for (Schema schema : schemas) {
-                        if (!schema.empty()) {
-                            nonEmptySchemas.add(schema);
-                        }
-                    }
-
-                    if (!nonEmptySchemas.isEmpty()) {
-                        if (configuration.isBaselineOnMigrate()) {
-                            doBaseline(schemaHistory, database, schemas, callbackExecutor);
-                        } else {
-                            // Second check for MySQL which is sometimes flaky otherwise
-                            if (!schemaHistory.exists()) {
-                                throw new FlywayException("Found non-empty schema(s) "
-                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " without schema history table! Use baseline()"
-                                        + " or set baselineOnMigrate to true to initialize the schema history table.");
-                            }
-                        }
-                    }
-                }
 
                 return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
                         callbackExecutor).migrate();

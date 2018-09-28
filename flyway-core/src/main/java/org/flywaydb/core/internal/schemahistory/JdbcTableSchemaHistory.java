@@ -156,23 +156,6 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                                          int executionTime, boolean success) {
         connection.restoreOriginalState();
 
-        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
-        // in highly concurrent environments
-        if (!database.supportsDdlTransactions()) {
-            table.lock();
-        }
-
-        try {
-            String versionStr = version == null ? null : version.toString();
-
-            jdbcTemplate.update(database.getInsertStatement(table),
-                    installedRank, versionStr, description, type.name(), script, checksum, installedBy,
-                    executionTime, success);
-
-            LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
-        }
     }
 
     @Override

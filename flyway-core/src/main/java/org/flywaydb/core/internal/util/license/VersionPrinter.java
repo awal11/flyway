@@ -97,22 +97,9 @@ public class VersionPrinter {
 
 
     public static void printVersionOnly() {
-        String edition = "Flyway"
+        String edition = "Flyway special version to initialize Teradata databases! version 1.0";
 
-                + " Community Edition"
-
-
-
-
-
-
-
-
-
-
-                ;
-
-        LOG.info(edition + " " + version + " by Boxfuse");
+        LOG.info(edition);
     }
 
     private static String readVersion() {

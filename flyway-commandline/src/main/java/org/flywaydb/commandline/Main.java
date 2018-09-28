@@ -47,7 +47,7 @@ public class Main {
     private static Log LOG;
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-?",
-            "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
+            "help", "initialize");
 
     /**
      * Initializes the logging.
@@ -153,25 +153,8 @@ public class Main {
      * @param operation The operation to execute.
      */
     private static void executeOperation(Flyway flyway, String operation) {
-        if ("clean".equals(operation)) {
-            flyway.clean();
-        } else if ("baseline".equals(operation)) {
-            flyway.baseline();
-        } else if ("migrate".equals(operation)) {
+        if ("initialize".equals(operation)) {
             flyway.migrate();
-        } else if ("undo".equals(operation)) {
-            flyway.undo();
-        } else if ("validate".equals(operation)) {
-            flyway.validate();
-        } else if ("info".equals(operation)) {
-            MigrationInfoService info = flyway.info();
-            MigrationInfo current = info.current();
-            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
-            LOG.info("Schema version: " + currentSchemaVersion);
-            LOG.info("");
-            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
-        } else if ("repair".equals(operation)) {
-            flyway.repair();
         } else {
             LOG.error("Invalid operation: " + operation);
             printUsage();
@@ -236,21 +219,17 @@ public class Main {
     private static void printUsage() {
         LOG.info("Usage");
         LOG.info("=====");
-        LOG.info("");
-        LOG.info("flyway [options] command");
+        LOG.info("flyway [options] initialize");
         LOG.info("");
         LOG.info("By default, the configuration will be read from conf/flyway.conf.");
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
-        LOG.info("Commands");
+        LOG.info("This specialized release was created to spare a lot of typing for creating SINGLE environment with MULTIPLE databases.");
+        LOG.info("It supports only one command:");
+        LOG.info("initialize: executes the provided set of migrations in a regular order, but");
+        LOG.info("          : DOES NOT VERIFY whether the migrations have been already run and");
+        LOG.info("          : DOES NOT RECORD that the migrations have been executed in any schema_history");
         LOG.info("--------");
-        LOG.info("migrate  : Migrates the database");
-        LOG.info("clean    : Drops all objects in the configured schemas");
-        LOG.info("info     : Prints the information about applied, current and pending migrations");
-        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("undo     : [" + "pro] Undoes the most recently applied versioned migration");
-        LOG.info("baseline : Baselines an existing database at the baselineVersion");
-        LOG.info("repair   : Repairs the schema history table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");
