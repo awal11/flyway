@@ -19,7 +19,11 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 public class TeradataSqlStatementBuilder extends SqlStatementBuilder {
+    private static final Pattern PROCEDURAL_CODE_REGEX = Pattern.compile(
+            "^CREATE|REPLACE\\s+(FUNCTION|PROCEDURE|TYPE|TRIGGER).*");
 
     /**
      * Holds the beginning of the statement.
@@ -54,4 +58,14 @@ public class TeradataSqlStatementBuilder extends SqlStatementBuilder {
             executeInTransaction = false;
         }
     }
+
+    @Override
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (PROCEDURAL_CODE_REGEX.matcher(statementStart.toUpperCase()).matches()) {
+            //return something dummy that will not (hopefully) come up
+            return Delimiter.GO;
+        }
+        return delimiter;
+    }
+
 }
